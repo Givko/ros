@@ -13,3 +13,6 @@ panic = "abort"
 name = "ros"
 test = false
 bench = false
+
+[dependencies]
+bootloader = "0.9.23"
