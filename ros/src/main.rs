@@ -11,12 +11,21 @@ use ros::println;
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
+    ros::init(); // new
+
+       fn stack_overflow() {
+        stack_overflow(); // for each recursion, the return address is pushed
+    }
+
+    // trigger a stack overflow
+    stack_overflow();
+    // as before
     #[cfg(test)]
     test_main();
 
+    println!("It did not crash!");
     loop {}
 }
-
 /// This function is called on panic.
 #[cfg(not(test))]
 #[panic_handler]
