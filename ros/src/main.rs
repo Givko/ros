@@ -13,25 +13,24 @@ pub extern "C" fn _start() -> ! {
 
     ros::init(); // new
 
-       fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
-    }
+    use x86_64::registers::control::Cr3;
 
-    // trigger a stack overflow
-    stack_overflow();
+    let (level_4_page_table, _) = Cr3::read();
+    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
+
     // as before
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
-    loop {}
+    ros::hlt_loop();    
 }
 /// This function is called on panic.
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    ros::hlt_loop();
 }
 
 #[cfg(test)]
