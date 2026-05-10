@@ -7,6 +7,7 @@
 use core::panic::PanicInfo;
 use ros::println;
 use bootloader::{BootInfo, entry_point};
+use x86_64::{VirtAddr, structures::paging::Translate};
 
 entry_point!(kernel_main);
 
@@ -15,7 +16,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     ros::init(); // new
 
-   let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    // new: initialize a mapper
+    let mapper = unsafe { ros::memory::init(phys_mem_offset) };
 
     let addresses = [
         // the identity-mapped vga buffer page
@@ -30,7 +33,8 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     for &address in &addresses {
         let virt = VirtAddr::new(address);
-        let phys = unsafe { ros::memory::translate_addr(virt, phys_mem_offset) };
+         // new: use the `mapper.translate_addr` method
+        let phys = mapper.translate_addr(virt);
         println!("{:?} -> {:?}", virt, phys);
     }
 
